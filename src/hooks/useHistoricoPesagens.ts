@@ -21,12 +21,13 @@ function ordenarPorData(pesagens: Pesagem[], decrescente: boolean): Pesagem[] {
 
 /** Concentra filtro, busca, ordenação e paginação do histórico fora da camada visual. */
 export function useHistoricoPesagens() {
-  const [periodo, setPeriodoState] = useState(() => periodoDoPreset("ultimos30"));
+  const [periodo, setPeriodoState] = useState(() => periodoDoPreset("todo"));
   const [busca, setBuscaState] = useState("");
   const [ordemDesc, setOrdemDesc] = useState(true);
   const [pagina, setPagina] = useState(1);
 
-  const intervalo: IntervaloDatas = { inicio: periodo.inicio, fim: periodo.fim };
+  const intervalo: IntervaloDatas | undefined =
+    periodo.preset === "todo" ? undefined : { inicio: periodo.inicio, fim: periodo.fim };
   const { data, isLoading } = usePesagens(intervalo);
 
   const filtradas = useMemo(() => {

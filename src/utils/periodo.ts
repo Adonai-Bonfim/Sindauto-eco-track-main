@@ -21,6 +21,8 @@ export function periodoDoPreset(preset: PeriodoPreset, atual?: Periodo): Periodo
   const fim = hojeISO();
 
   switch (preset) {
+    case "todo":
+      return { preset, inicio: "", fim: "" };
     case "hoje":
       return { preset, inicio: fim, fim };
     case "semana": {
@@ -45,6 +47,7 @@ export function periodoDoPreset(preset: PeriodoPreset, atual?: Periodo): Periodo
 }
 
 export const PRESETS: { valor: PeriodoPreset; rotulo: string }[] = [
+  { valor: "todo", rotulo: "Todo o histórico" },
   { valor: "hoje", rotulo: "Hoje" },
   { valor: "semana", rotulo: "Esta semana" },
   { valor: "mes", rotulo: "Este mês" },

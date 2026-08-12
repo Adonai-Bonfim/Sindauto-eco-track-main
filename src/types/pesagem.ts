@@ -30,7 +30,13 @@ export interface Indicadores {
   mediaDiaria: number;
 }
 
-export type PeriodoPreset = "hoje" | "semana" | "mes" | "ultimos30" | "personalizado";
+export type PeriodoPreset =
+  | "todo"
+  | "hoje"
+  | "semana"
+  | "mes"
+  | "ultimos30"
+  | "personalizado";
 
 /** Intervalo de consulta em datas ISO "YYYY-MM-DD". */
 export interface IntervaloDatas {

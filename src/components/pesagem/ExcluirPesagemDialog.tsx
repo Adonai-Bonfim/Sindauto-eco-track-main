@@ -26,7 +26,14 @@ export function ExcluirPesagemDialog({ pesagem, onFechar }: Props) {
     if (!pesagem) return;
     excluir.mutate(pesagem.id, {
       onSuccess: () => toast.success("Pesagem excluída."),
-      onError: () => toast.error("Não foi possível excluir a pesagem."),
+      onError: (error) => {
+        console.error("Erro ao excluir pesagem:", error);
+        toast.error(
+          error instanceof Error
+            ? `Não foi possível excluir: ${error.message}`
+            : "Não foi possível excluir a pesagem.",
+        );
+      },
     });
     onFechar();
   }

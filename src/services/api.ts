@@ -31,5 +31,13 @@ export async function requisicaoApi<T>(caminho: string, init?: RequestInit): Pro
     throw new Error(corpo?.erro ?? corpo?.message ?? `Erro na API (${resposta.status}).`);
   }
   if (resposta.status === 204) return undefined as T;
-  return resposta.json() as Promise<T>;
+
+  const texto = await resposta.text();
+  if (!texto.trim()) return undefined as T;
+
+  try {
+    return JSON.parse(texto) as T;
+  } catch {
+    throw new Error("A API retornou uma resposta inválida.");
+  }
 }
