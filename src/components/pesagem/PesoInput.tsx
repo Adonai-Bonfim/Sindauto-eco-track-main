@@ -8,14 +8,14 @@ interface PesoInputProps extends Omit<
   React.ComponentProps<"input">,
   "value" | "onChange" | "type"
 > {
-  /** Texto já mascarado (ex.: "12,50"). */
+  /** Texto já mascarado (ex.: "12,500"). */
   value: string;
   /** Recebe sempre o texto mascarado normalizado. */
   onChange: (valor: string) => void;
 }
 
 /**
- * Campo de peso com máscara brasileira de centavos: o usuário digita apenas
+ * Campo de peso com máscara brasileira de milésimos: o usuário digita apenas
  * dígitos e a vírgula é posicionada automaticamente. A unidade "kg" é
  * apresentada como sufixo visual e nunca faz parte do valor.
  */
@@ -31,7 +31,7 @@ export const PesoInput = forwardRef<HTMLInputElement, PesoInputProps>(function P
         type="text"
         inputMode="numeric"
         autoComplete="off"
-        placeholder="0,00"
+        placeholder="0,000"
         value={value}
         onChange={(e) => onChange(formatarMascaraPeso(e.target.value))}
         onPaste={(e) => {

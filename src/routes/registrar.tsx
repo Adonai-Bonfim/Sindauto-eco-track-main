@@ -35,7 +35,7 @@ function RegistrarPesagem() {
     <>
       <PageHeader
         titulo="Registrar Pesagem"
-        descricao="Informe as quantidades pesadas em quilogramas. Aceita valores decimais (ex.: 2,5)."
+        descricao="Digite apenas números; os valores serão exibidos com três casas decimais (ex.: 2,855 kg)."
       />
 
       <div className="surface-card mx-auto max-w-2xl p-6 sm:p-8">

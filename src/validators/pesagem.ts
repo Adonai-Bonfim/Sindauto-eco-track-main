@@ -4,13 +4,13 @@ import { hojeISO } from "@/utils/periodo";
 
 /** Limite razoável por categoria em uma única pesagem diária. */
 export const PESO_MAXIMO_KG = 100_000;
-export const CASAS_DECIMAIS = 2;
+export const CASAS_DECIMAIS = 3;
 export const OBSERVACOES_MAX = 500;
 export const RESPONSAVEL_MAX = 120;
 
 const REGEX_DATA = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Arredonda para 2 casas evitando ruído de ponto flutuante (ex.: 0.1 + 0.2). */
+/** Limita o payload a 3 casas, sem reduzir a precisão informada na interface. */
 export function arredondarPeso(valor: number): number {
   const fator = 10 ** CASAS_DECIMAIS;
   return Math.round(valor * fator) / fator;

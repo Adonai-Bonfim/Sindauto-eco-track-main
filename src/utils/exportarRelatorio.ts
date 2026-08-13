@@ -112,19 +112,19 @@ export async function exportarRelatorioExcel(dadosRelatorio: DadosRelatorio) {
     ],
     [
       { value: "Total de resíduos (kg)", fontWeight: "bold" as const },
-      { value: indicadores.total, type: Number, format: "#,##0.00" },
+      { value: indicadores.total, type: Number, format: "#,##0.000" },
     ],
     [
       { value: "Recicláveis (kg)", fontWeight: "bold" as const },
-      { value: indicadores.reciclaveis, type: Number, format: "#,##0.00" },
+      { value: indicadores.reciclaveis, type: Number, format: "#,##0.000" },
     ],
     [
       { value: "Orgânicos (kg)", fontWeight: "bold" as const },
-      { value: indicadores.organicos, type: Number, format: "#,##0.00" },
+      { value: indicadores.organicos, type: Number, format: "#,##0.000" },
     ],
     [
       { value: "Rejeitos (kg)", fontWeight: "bold" as const },
-      { value: indicadores.rejeitos, type: Number, format: "#,##0.00" },
+      { value: indicadores.rejeitos, type: Number, format: "#,##0.000" },
     ],
     [
       { value: "Taxa de desvio", fontWeight: "bold" as const },
@@ -132,7 +132,7 @@ export async function exportarRelatorioExcel(dadosRelatorio: DadosRelatorio) {
     ],
     [
       { value: "Média diária (kg)", fontWeight: "bold" as const },
-      { value: indicadores.mediaDiaria, type: Number, format: "#,##0.00" },
+      { value: indicadores.mediaDiaria, type: Number, format: "#,##0.000" },
     ],
     [
       { value: "Pesagens realizadas", fontWeight: "bold" as const },
@@ -156,10 +156,10 @@ export async function exportarRelatorioExcel(dadosRelatorio: DadosRelatorio) {
       { value: formatarData(p.data) },
       { value: formatarHorario(p.created_at) },
       { value: p.responsavel },
-      { value: p.reciclaveis, type: Number, format: "#,##0.00", color: "#27864b" },
-      { value: p.organicos, type: Number, format: "#,##0.00", color: "#795334" },
-      { value: p.rejeitos, type: Number, format: "#,##0.00", color: "#6b7280" },
-      { value: totalPesagem(p), type: Number, format: "#,##0.00" },
+      { value: p.reciclaveis, type: Number, format: "#,##0.000", color: "#27864b" },
+      { value: p.organicos, type: Number, format: "#,##0.000", color: "#795334" },
+      { value: p.rejeitos, type: Number, format: "#,##0.000", color: "#6b7280" },
+      { value: totalPesagem(p), type: Number, format: "#,##0.000" },
       { value: desvioPesagem(p) / 100, type: Number, format: "0.0%" },
       { value: p.observacoes ?? "", wrap: true },
     ]),

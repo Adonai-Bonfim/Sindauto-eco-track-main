@@ -1,8 +1,8 @@
-export function formatarKg(valor: number, casas = 2): string {
+export function formatarKg(valor: number): string {
   const numero = Number.isFinite(valor) ? valor : 0;
   return `${numero.toLocaleString("pt-BR", {
-    minimumFractionDigits: casas,
-    maximumFractionDigits: casas,
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3,
   })} kg`;
 }
 
