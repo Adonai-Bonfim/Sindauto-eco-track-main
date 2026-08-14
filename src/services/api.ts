@@ -1,5 +1,5 @@
 const CHAVE_TOKEN = "sindauto-api-token";
-const API_URL = (import.meta.env["VITE_API_URL"] || "/api").replace(/\/$/, "");
+const API_URL = "https://api-ukzwpa.fly.dev/api";
 
 export function obterTokenApi(): string | null {
   return typeof localStorage === "undefined" ? null : localStorage.getItem(CHAVE_TOKEN);
