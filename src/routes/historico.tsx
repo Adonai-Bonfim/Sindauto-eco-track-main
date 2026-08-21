@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHistoricoPesagens } from "@/hooks/useHistoricoPesagens";
+import { useAuth } from "@/hooks/useAuth";
 import type { Pesagem } from "@/types/pesagem";
 
 export const Route = createFileRoute("/historico")({
@@ -35,6 +36,7 @@ export const Route = createFileRoute("/historico")({
 
 function Historico() {
   const historico = useHistoricoPesagens();
+  const { admin } = useAuth();
 
   const [visualizando, setVisualizando] = useState<Pesagem | null>(null);
   const [editando, setEditando] = useState<Pesagem | null>(null);
@@ -84,7 +86,7 @@ function Historico() {
             pesagens={historico.visiveis}
             onVisualizar={setVisualizando}
             onEditar={setEditando}
-            onExcluir={setExcluindo}
+            onExcluir={admin ? setExcluindo : undefined}
           />
         )}
       </div>
@@ -118,7 +120,7 @@ function Historico() {
 
       <DetalhesPesagemDialog pesagem={visualizando} onFechar={() => setVisualizando(null)} />
       <EditarPesagemDialog pesagem={editando} onFechar={() => setEditando(null)} />
-      <ExcluirPesagemDialog pesagem={excluindo} onFechar={() => setExcluindo(null)} />
+      {admin && <ExcluirPesagemDialog pesagem={excluindo} onFechar={() => setExcluindo(null)} />}
     </>
   );
 }

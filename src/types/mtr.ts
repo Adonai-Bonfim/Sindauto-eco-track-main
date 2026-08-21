@@ -1,11 +1,5 @@
 export type SituacaoMtr = "emitido" | "em_transporte" | "recebido" | "concluido" | "cancelado";
 
-export interface AnexoMtr {
-  nome: string;
-  tipo: string;
-  dados: string;
-}
-
 export interface Mtr {
   id: string;
   numero: string;
@@ -24,8 +18,6 @@ export interface Mtr {
   codigoClassificacao: string;
   tecnologiaDestinacao: string;
   numeroCdf: string;
-  pdfMtr: AnexoMtr | null;
-  pdfCdf: AnexoMtr | null;
   observacoes: string;
   createdAt: string;
   updatedAt: string;

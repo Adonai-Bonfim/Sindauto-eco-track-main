@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -13,13 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { AnexoMtr, Mtr, MtrInput, SituacaoMtr } from "@/types/mtr";
+import type { Mtr, MtrInput, SituacaoMtr } from "@/types/mtr";
 import type { Pesagem } from "@/types/pesagem";
 import { totalPesagem } from "@/utils/calculos";
 import { formatarData, formatarKg } from "@/utils/formato";
 import { hojeISO } from "@/utils/periodo";
-
-const LIMITE_ANEXO = 1_500_000;
 
 const vazio = (): MtrInput => ({
   numero: "",
@@ -38,27 +35,30 @@ const vazio = (): MtrInput => ({
   codigoClassificacao: "",
   tecnologiaDestinacao: "",
   numeroCdf: "",
-  pdfMtr: null,
-  pdfCdf: null,
   observacoes: "",
 });
 
 function paraInput(mtr?: Mtr | null): MtrInput {
   if (!mtr) return vazio();
-  const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...input } = mtr;
-  return input;
-}
-
-async function lerAnexo(arquivo: File): Promise<AnexoMtr> {
-  if (arquivo.type !== "application/pdf") throw new Error("Selecione um arquivo PDF.");
-  if (arquivo.size > LIMITE_ANEXO) throw new Error("O PDF deve ter no máximo 1,5 MB.");
-  const dados = await new Promise<string>((resolve, reject) => {
-    const leitor = new FileReader();
-    leitor.onload = () => resolve(String(leitor.result));
-    leitor.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
-    leitor.readAsDataURL(arquivo);
-  });
-  return { nome: arquivo.name, tipo: arquivo.type, dados };
+  return {
+    numero: mtr.numero,
+    situacao: mtr.situacao,
+    dataEmissao: mtr.dataEmissao,
+    dataColeta: mtr.dataColeta,
+    transportador: mtr.transportador,
+    destinador: mtr.destinador,
+    pesagemIds: mtr.pesagemIds,
+    reciclaveis: mtr.reciclaveis,
+    organicos: mtr.organicos,
+    rejeitos: mtr.rejeitos,
+    pesoDeclarado: mtr.pesoDeclarado,
+    pesoRecebido: mtr.pesoRecebido,
+    descricaoOficial: mtr.descricaoOficial,
+    codigoClassificacao: mtr.codigoClassificacao,
+    tecnologiaDestinacao: mtr.tecnologiaDestinacao,
+    numeroCdf: mtr.numeroCdf,
+    observacoes: mtr.observacoes,
+  };
 }
 
 interface Props {
@@ -88,15 +88,6 @@ export function MtrForm({ pesagens, editando, onSalvar, onCancelar }: Props) {
       organicos: vinculadas.reduce((s, p) => s + Number(p.organicos), 0),
       rejeitos: vinculadas.reduce((s, p) => s + Number(p.rejeitos), 0),
     });
-  }
-
-  async function anexar(chave: "pdfMtr" | "pdfCdf", arquivo?: File) {
-    if (!arquivo) return;
-    try {
-      setValores({ ...valores, [chave]: await lerAnexo(arquivo) });
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Arquivo inválido.");
-    }
   }
 
   function submeter(e: React.FormEvent) {
@@ -284,33 +275,6 @@ export function MtrForm({ pesagens, editando, onSalvar, onCancelar }: Props) {
             value={valores.tecnologiaDestinacao}
             onChange={(e) => setValores({ ...valores, tecnologiaDestinacao: e.target.value })}
           />
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="pdf-mtr">PDF do MTR (máx. 1,5 MB)</Label>
-          <Input
-            id="pdf-mtr"
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => void anexar("pdfMtr", e.target.files?.[0])}
-          />
-          <p className="text-xs text-muted-foreground">
-            {valores.pdfMtr?.nome ?? "Nenhum arquivo anexado"}
-          </p>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="pdf-cdf">PDF do CDF (máx. 1,5 MB)</Label>
-          <Input
-            id="pdf-cdf"
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => void anexar("pdfCdf", e.target.files?.[0])}
-          />
-          <p className="text-xs text-muted-foreground">
-            {valores.pdfCdf?.nome ?? "Nenhum arquivo anexado"}
-          </p>
         </div>
       </div>
 

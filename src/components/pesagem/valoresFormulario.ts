@@ -10,9 +10,9 @@ export type ValoresFormulario = Record<CategoriaResiduo, string> & {
   observacoes: string;
 };
 
-export const valoresIniciais = (): ValoresFormulario => ({
+export const valoresIniciais = (responsavel = "Cristiane"): ValoresFormulario => ({
   data: hojeISO(),
-  responsavel: "Cristiane",
+  responsavel,
   reciclaveis: "",
   organicos: "",
   rejeitos: "",

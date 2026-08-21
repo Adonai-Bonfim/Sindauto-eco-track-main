@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, CheckCircle2, FileText, Pencil, Plus, Trash2, Truck } from "lucide-react";
+import { AlertTriangle, FileText, Pencil, Plus, Trash2, Truck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useMtrs } from "@/hooks/useMtrs";
+import { useAuth } from "@/hooks/useAuth";
 import { usePesagens } from "@/hooks/usePesagens";
 import type { Mtr, SituacaoMtr } from "@/types/mtr";
 import { formatarData, formatarKg } from "@/utils/formato";
@@ -39,7 +40,8 @@ function pesoInterno(mtr: Mtr) {
 }
 
 function ControleMtr() {
-  const { data: pesagens } = usePesagens();
+  const { admin } = useAuth();
+  const { data: pesagens } = usePesagens(undefined, admin);
   const controle = useMtrs();
   const [exibindoForm, setExibindoForm] = useState(false);
   const [editando, setEditando] = useState<Mtr | null>(null);
@@ -56,9 +58,8 @@ function ControleMtr() {
   }, [busca, controle.mtrs]);
 
   const semCdf = controle.mtrs.filter(
-    (mtr) => mtr.situacao !== "cancelado" && (!mtr.numeroCdf || !mtr.pdfCdf),
+    (mtr) => mtr.situacao !== "cancelado" && !mtr.numeroCdf,
   ).length;
-  const semPdfMtr = controle.mtrs.filter((mtr) => !mtr.pdfMtr).length;
   const emTransporte = controle.mtrs.filter((mtr) => mtr.situacao === "em_transporte").length;
 
   function fecharFormulario() {
@@ -66,10 +67,14 @@ function ControleMtr() {
     setEditando(null);
   }
 
-  function remover(mtr: Mtr) {
+  async function remover(mtr: Mtr) {
     if (!window.confirm(`Excluir o registro interno do MTR ${mtr.numero}?`)) return;
-    controle.excluir(mtr.id);
-    toast.success("Registro de MTR excluído.");
+    try {
+      await controle.excluir(mtr.id);
+      toast.success("Registro de MTR excluído.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível excluir o MTR.");
+    }
   }
 
   return (
@@ -78,14 +83,16 @@ function ControleMtr() {
         titulo="Controle de MTR"
         descricao="Registro interno de manifestos emitidos no SINIR, sem integração automática."
         acoes={
-          <Button
-            onClick={() => {
-              setEditando(null);
-              setExibindoForm(true);
-            }}
-          >
-            <Plus className="h-4 w-4" /> Novo MTR
-          </Button>
+          admin ? (
+            <Button
+              onClick={() => {
+                setEditando(null);
+                setExibindoForm(true);
+              }}
+            >
+              <Plus className="h-4 w-4" /> Novo MTR
+            </Button>
+          ) : undefined
         }
       />
 
@@ -99,19 +106,19 @@ function ControleMtr() {
         </div>
       </div>
 
-      <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="stagger grid gap-4 sm:grid-cols-3">
         <Resumo titulo="Manifestos" valor={controle.mtrs.length} icone={FileText} />
         <Resumo titulo="Em transporte" valor={emTransporte} icone={Truck} />
         <Resumo titulo="CDF pendente" valor={semCdf} icone={AlertTriangle} alerta={semCdf > 0} />
-        <Resumo
-          titulo="PDF do MTR pendente"
-          valor={semPdfMtr}
-          icone={CheckCircle2}
-          alerta={semPdfMtr > 0}
-        />
       </div>
 
-      {exibindoForm && (
+      {!admin && (
+        <p className="mt-6 rounded-xl bg-muted/60 p-4 text-sm text-muted-foreground">
+          Acesso somente para consulta. Apenas administradores podem alterar registros de MTR.
+        </p>
+      )}
+
+      {admin && exibindoForm && (
         <section className="surface-card mt-6 p-6 sm:p-8">
           <h2 className="mb-6 font-semibold">
             {editando ? `Editar MTR ${editando.numero}` : "Registrar MTR"}
@@ -121,10 +128,10 @@ function ControleMtr() {
             pesagens={pesagens ?? []}
             editando={editando}
             onCancelar={fecharFormulario}
-            onSalvar={(input) => {
+            onSalvar={async (input) => {
               try {
-                if (editando) controle.atualizar(editando.id, input);
-                else controle.criar(input);
+                if (editando) await controle.atualizar(editando.id, input);
+                else await controle.criar(input);
                 toast.success(editando ? "MTR atualizado." : "MTR registrado.");
                 fecharFormulario();
               } catch (error) {
@@ -146,7 +153,9 @@ function ControleMtr() {
             className="max-w-lg"
           />
         </div>
-        {visiveis.length === 0 ? (
+        {controle.isLoading ? (
+          <p className="p-10 text-center text-sm text-muted-foreground">Carregando MTRs...</p>
+        ) : visiveis.length === 0 ? (
           <p className="p-10 text-center text-sm text-muted-foreground">
             Nenhum MTR encontrado. Use “Novo MTR” para iniciar o controle.
           </p>
@@ -160,7 +169,7 @@ function ControleMtr() {
                   <TableHead>Situação</TableHead>
                   <TableHead>Transportador / Destinador</TableHead>
                   <TableHead>Peso interno</TableHead>
-                  <TableHead>Documentos</TableHead>
+                  <TableHead>CDF</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -182,50 +191,37 @@ function ControleMtr() {
                     </TableCell>
                     <TableCell className="tabular-nums">{formatarKg(pesoInterno(mtr))}</TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
-                        {mtr.pdfMtr ? (
-                          <a
-                            className="text-xs font-medium text-primary underline-offset-4 hover:underline"
-                            href={mtr.pdfMtr.dados}
-                            download={mtr.pdfMtr.nome}
-                          >
-                            MTR
-                          </a>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">MTR pendente</span>
-                        )}
-                        {mtr.pdfCdf ? (
-                          <a
-                            className="text-xs font-medium text-primary underline-offset-4 hover:underline"
-                            href={mtr.pdfCdf.dados}
-                            download={mtr.pdfCdf.nome}
-                          >
-                            CDF
-                          </a>
-                        ) : null}
-                      </div>
+                      {mtr.numeroCdf || (
+                        <span className="text-xs text-muted-foreground">Pendente</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Editar MTR ${mtr.numero}`}
-                          onClick={() => {
-                            setEditando(mtr);
-                            setExibindoForm(true);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Excluir MTR ${mtr.numero}`}
-                          onClick={() => remover(mtr)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {admin ? (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Editar MTR ${mtr.numero}`}
+                              onClick={() => {
+                                setEditando(mtr);
+                                setExibindoForm(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Excluir MTR ${mtr.numero}`}
+                              onClick={() => void remover(mtr)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Consulta</span>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

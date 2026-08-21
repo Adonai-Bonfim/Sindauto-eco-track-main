@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/AppLayout";
 import { PesagemForm } from "@/components/pesagem/PesagemForm";
 import { valoresIniciais } from "@/components/pesagem/valoresFormulario";
 import { useCriarPesagem } from "@/hooks/usePesagens";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/registrar")({
   head: () => ({
@@ -27,7 +28,8 @@ export const Route = createFileRoute("/registrar")({
 });
 
 function RegistrarPesagem() {
-  const [valores, setValores] = useState(valoresIniciais);
+  const { usuario } = useAuth();
+  const [valores, setValores] = useState(() => valoresIniciais(usuario?.nome));
   const criar = useCriarPesagem();
   const navigate = useNavigate();
 
@@ -47,7 +49,7 @@ function RegistrarPesagem() {
             criar.mutate(input, {
               onSuccess: () => {
                 toast.success("Pesagem registrada com sucesso.");
-                setValores(valoresIniciais());
+                setValores(valoresIniciais(usuario?.nome));
                 navigate({ to: "/historico" });
               },
               onError: (error) => {

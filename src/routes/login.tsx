@@ -17,20 +17,28 @@ function Login() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
-  const { entrar, autenticado, carregando } = useAuth();
+  const { entrar, autenticado, carregando, usuario: usuarioAutenticado } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!carregando && autenticado) navigate({ to: "/", replace: true });
-  }, [autenticado, carregando, navigate]);
+    if (!carregando && autenticado) {
+      navigate({
+        to: usuarioAutenticado?.mustChangePassword ? "/trocar-senha" : "/",
+        replace: true,
+      });
+    }
+  }, [autenticado, carregando, navigate, usuarioAutenticado?.mustChangePassword]);
 
   async function submeter(evento: React.FormEvent) {
     evento.preventDefault();
     setErro(null);
     setEnviando(true);
     try {
-      await entrar(usuario, senha);
-      await navigate({ to: "/", replace: true });
+      const usuarioAutenticado = await entrar(usuario, senha);
+      await navigate({
+        to: usuarioAutenticado.mustChangePassword ? "/trocar-senha" : "/",
+        replace: true,
+      });
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Não foi possível entrar.");
     } finally {
@@ -49,7 +57,7 @@ function Login() {
           />
           <div>
             <h1 className="text-xl font-bold">Sindauto Lixo Zero</h1>
-            <p className="text-sm text-muted-foreground">Acesso administrativo</p>
+            <p className="text-sm text-muted-foreground">Acesso ao sistema</p>
           </div>
         </div>
 

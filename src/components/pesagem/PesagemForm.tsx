@@ -74,12 +74,16 @@ export function PesagemForm({
         <Input
           id="responsavel"
           value={valores.responsavel}
+          disabled
           maxLength={RESPONSAVEL_MAX}
           autoComplete="name"
           onChange={(e) => onChange({ ...valores, responsavel: e.target.value })}
           className="h-12 text-base"
           placeholder="Nome do responsável"
         />
+        <p className="text-xs text-muted-foreground">
+          O responsável é definido pelo usuário autenticado.
+        </p>
       </div>
 
       <div className={compacto ? "grid gap-4 sm:grid-cols-3" : "grid gap-5 sm:grid-cols-3"}>

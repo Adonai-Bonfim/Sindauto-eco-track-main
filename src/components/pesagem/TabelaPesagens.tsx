@@ -17,7 +17,7 @@ interface Props {
   pesagens: Pesagem[];
   onVisualizar: (pesagem: Pesagem) => void;
   onEditar: (pesagem: Pesagem) => void;
-  onExcluir: (pesagem: Pesagem) => void;
+  onExcluir?: (pesagem: Pesagem) => void;
 }
 
 export function TabelaPesagens({ pesagens, onVisualizar, onEditar, onExcluir }: Props) {
@@ -84,15 +84,17 @@ export function TabelaPesagens({ pesagens, onVisualizar, onEditar, onExcluir }: 
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-11 w-11 sm:h-9 sm:w-9"
-                      aria-label="Excluir"
-                      onClick={() => onExcluir(p)}
-                    >
-                      <Trash className="h-4 w-4 text-destructive" />
-                    </Button>
+                    {onExcluir && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 sm:h-9 sm:w-9"
+                        aria-label="Excluir"
+                        onClick={() => onExcluir(p)}
+                      >
+                        <Trash className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

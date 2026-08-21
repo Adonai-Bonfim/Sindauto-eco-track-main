@@ -454,13 +454,9 @@ PUT    /pesagens/:id
 DELETE /pesagens/:id
 ```
 
-O login deve retornar `{ "token": "..." }`. As demais rotas protegidas recebem o token no
-cabeçalho `Authorization: Bearer <token>`.
-
-```text
-Usuário: admin
-Senha: admin@123
-```
+O login deve retornar o token e o usuário autenticado, incluindo seu perfil de acesso. As demais
+rotas protegidas recebem o token no cabeçalho `Authorization: Bearer <token>`. As credenciais são
+configuradas e validadas exclusivamente pelo backend e não devem ser registradas neste repositório.
 
 Para iniciar o frontend:
 

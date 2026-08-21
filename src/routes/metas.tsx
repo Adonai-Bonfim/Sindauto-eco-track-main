@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { useAuth } from "@/hooks/useAuth";
 import { useMetaDesvio } from "@/hooks/useMetaDesvio";
 
 export const Route = createFileRoute("/metas")({
@@ -16,14 +17,19 @@ export const Route = createFileRoute("/metas")({
 });
 
 function Metas() {
-  const { meta, salvarMeta } = useMetaDesvio();
+  const { admin } = useAuth();
+  const { meta, salvarMeta, isLoading, isSaving } = useMetaDesvio();
   const [valor, setValor] = useState(meta);
 
   useEffect(() => setValor(meta), [meta]);
 
-  function salvar() {
-    salvarMeta(valor);
-    toast.success("Meta de desvio atualizada.");
+  async function salvar() {
+    try {
+      await salvarMeta(valor);
+      toast.success("Meta de desvio atualizada.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível atualizar a meta.");
+    }
   }
 
   return (
@@ -56,6 +62,7 @@ function Metas() {
                 min={1}
                 max={100}
                 value={valor}
+                disabled={!admin || isLoading}
                 onChange={(e) => setValor(Math.min(Math.max(Number(e.target.value), 1), 100))}
                 className="w-28 text-lg font-semibold tabular-nums"
               />
@@ -68,6 +75,7 @@ function Metas() {
             min={1}
             max={100}
             step={1}
+            disabled={!admin || isLoading}
             onValueChange={([novo]) => setValor(novo ?? valor)}
             aria-label="Meta de desvio do aterro"
           />
@@ -78,7 +86,15 @@ function Metas() {
             <span>100%</span>
           </div>
 
-          <Button onClick={salvar}>Salvar meta</Button>
+          {admin ? (
+            <Button onClick={() => void salvar()} disabled={isLoading || isSaving}>
+              {isSaving ? "Salvando..." : "Salvar meta"}
+            </Button>
+          ) : (
+            <p className="rounded-xl bg-muted/60 p-4 text-sm text-muted-foreground">
+              Acesso somente para consulta. Apenas administradores podem alterar a meta.
+            </p>
+          )}
         </div>
       </section>
     </>

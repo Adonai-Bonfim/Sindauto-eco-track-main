@@ -1,5 +1,15 @@
 const CHAVE_TOKEN = "sindauto-api-token";
-const API_URL = "https://api-ukzwpa.fly.dev/api";
+const API_URL = String(import.meta.env["VITE_API_URL"] ?? "").replace(/\/$/, "");
+
+export class ErroApi extends Error {
+  constructor(
+    mensagem: string,
+    public readonly status: number,
+  ) {
+    super(mensagem);
+    this.name = "ErroApi";
+  }
+}
 
 export function obterTokenApi(): string | null {
   return typeof localStorage === "undefined" ? null : localStorage.getItem(CHAVE_TOKEN);
@@ -14,6 +24,9 @@ export function removerTokenApi() {
 }
 
 export async function requisicaoApi<T>(caminho: string, init?: RequestInit): Promise<T> {
+  if (!API_URL) {
+    throw new Error("A URL do backend não está configurada.");
+  }
   const token = obterTokenApi();
   const resposta = await fetch(`${API_URL}${caminho}`, {
     ...init,
@@ -28,7 +41,10 @@ export async function requisicaoApi<T>(caminho: string, init?: RequestInit): Pro
       erro?: string;
       message?: string;
     } | null;
-    throw new Error(corpo?.erro ?? corpo?.message ?? `Erro na API (${resposta.status}).`);
+    throw new ErroApi(
+      corpo?.erro ?? corpo?.message ?? `Erro na API (${resposta.status}).`,
+      resposta.status,
+    );
   }
   if (resposta.status === 204) return undefined as T;
 

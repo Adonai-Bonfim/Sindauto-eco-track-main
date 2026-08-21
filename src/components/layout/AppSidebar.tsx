@@ -9,6 +9,7 @@ import {
   ScrollText,
   Settings,
   Target,
+  Users,
 } from "lucide-react";
 
 import {
@@ -26,7 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 
-const itens = [
+const itensGerais = [
   { titulo: "Dashboard", url: "/", icone: LayoutDashboard },
   { titulo: "Registrar Pesagem", url: "/registrar", icone: ClipboardList },
   { titulo: "Histórico", url: "/historico", icone: BarChart3 },
@@ -34,14 +35,19 @@ const itens = [
   { titulo: "Metas", url: "/metas", icone: Target },
   { titulo: "Alertas", url: "/alertas", icone: BellRing },
   { titulo: "Controle de MTR", url: "/mtr", icone: ScrollText },
+] as const;
+
+const itensAdministrativos = [
   { titulo: "Configurações", url: "/configuracoes", icone: Settings },
+  { titulo: "Usuários", url: "/usuarios", icone: Users },
 ] as const;
 
 export function AppSidebar() {
   const { state, setOpen, setOpenMobile } = useSidebar();
   const recolhida = state === "collapsed";
   const caminho = useRouterState({ select: (r) => r.location.pathname });
-  const { sair } = useAuth();
+  const { sair, usuario, admin } = useAuth();
+  const itens = admin ? [...itensGerais, ...itensAdministrativos] : itensGerais;
 
   function recolherMenu() {
     setOpen(false);
@@ -90,6 +96,12 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border p-3">
+        {!recolhida && usuario && (
+          <div className="mb-2 min-w-0 px-2">
+            <p className="truncate text-sm font-medium">{usuario.nome}</p>
+            <p className="text-xs capitalize text-muted-foreground">{usuario.perfil}</p>
+          </div>
+        )}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton

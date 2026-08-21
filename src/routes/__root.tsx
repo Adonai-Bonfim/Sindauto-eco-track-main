@@ -147,14 +147,30 @@ function RootComponent() {
 function AuthenticatedApp() {
   const caminho = useRouterState({ select: (state) => state.location.pathname });
   const navigate = useRouter().navigate;
-  const { autenticado, carregando } = useAuth();
+  const { autenticado, carregando, usuario } = useAuth();
   const paginaLogin = caminho === "/login";
+  const paginaTrocaSenha = caminho === "/trocar-senha";
+  const paginaSomenteAdmin = caminho === "/configuracoes" || caminho.startsWith("/usuarios");
 
   useEffect(() => {
     if (!carregando && !autenticado && !paginaLogin) {
       navigate({ to: "/login", replace: true });
+    } else if (!carregando && autenticado && usuario?.mustChangePassword && !paginaTrocaSenha) {
+      navigate({ to: "/trocar-senha", replace: true });
+    } else if (!carregando && autenticado && !usuario?.mustChangePassword && paginaTrocaSenha) {
+      navigate({ to: "/", replace: true });
+    } else if (!carregando && autenticado && usuario?.perfil !== "admin" && paginaSomenteAdmin) {
+      navigate({ to: "/", replace: true });
     }
-  }, [autenticado, carregando, navigate, paginaLogin]);
+  }, [
+    autenticado,
+    carregando,
+    navigate,
+    paginaLogin,
+    paginaSomenteAdmin,
+    paginaTrocaSenha,
+    usuario,
+  ]);
 
   if (paginaLogin) return <Outlet />;
 
@@ -165,6 +181,8 @@ function AuthenticatedApp() {
       </div>
     );
   }
+
+  if (paginaTrocaSenha) return <Outlet />;
 
   return (
     <AppLayout>

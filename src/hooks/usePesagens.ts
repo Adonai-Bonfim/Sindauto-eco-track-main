@@ -13,10 +13,11 @@ const CHAVE = ["pesagens"] as const;
 const STALE_TIME_MS = 30_000;
 const MODO_LOCAL = import.meta.env["VITE_DATA_SOURCE"] === "local";
 
-export function usePesagens(intervalo?: IntervaloDatas) {
+export function usePesagens(intervalo?: IntervaloDatas, enabled = true) {
   return useQuery({
     queryKey: [...CHAVE, intervalo?.inicio ?? null, intervalo?.fim ?? null],
     queryFn: () => listarPesagens(intervalo),
+    enabled,
     staleTime: MODO_LOCAL ? 0 : STALE_TIME_MS,
     refetchOnMount: MODO_LOCAL ? "always" : true,
   });
