@@ -11,9 +11,9 @@ export function GraficoComposicao({ indicadores }: { indicadores: Indicadores })
     nome: rotulo,
     valor: indicadores[categoria],
     cor: `var(--${token})`,
-  })).filter((d) => d.valor > 0);
+  }));
 
-  if (dados.length === 0) return <EstadoVazio />;
+  if (dados.every((d) => d.valor <= 0)) return <EstadoVazio />;
 
   return (
     <div className={ALTURA_GRAFICO}>

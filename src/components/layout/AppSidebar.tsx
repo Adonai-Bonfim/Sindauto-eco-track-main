@@ -5,7 +5,9 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  ScrollText,
   Settings,
+  Target,
 } from "lucide-react";
 
 import {
@@ -28,6 +30,8 @@ const itens = [
   { titulo: "Registrar Pesagem", url: "/registrar", icone: ClipboardList },
   { titulo: "Histórico", url: "/historico", icone: BarChart3 },
   { titulo: "Relatórios", url: "/relatorios", icone: FileText },
+  { titulo: "Metas", url: "/metas", icone: Target },
+  { titulo: "Controle de MTR", url: "/mtr", icone: ScrollText },
   { titulo: "Configurações", url: "/configuracoes", icone: Settings },
 ] as const;
 

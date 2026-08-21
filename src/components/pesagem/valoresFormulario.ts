@@ -12,7 +12,7 @@ export type ValoresFormulario = Record<CategoriaResiduo, string> & {
 
 export const valoresIniciais = (): ValoresFormulario => ({
   data: hojeISO(),
-  responsavel: "Administrador",
+  responsavel: "Cristiane",
   reciclaveis: "",
   organicos: "",
   rejeitos: "",

@@ -3,7 +3,11 @@ import { useMemo, useState } from "react";
 import { Leaf, Plus, Recycle, Scale, Trash2, TrendingUp } from "lucide-react";
 
 import { GraficoComposicao } from "@/components/charts/GraficoComposicao";
+import { GraficoBarrasSemanais } from "@/components/charts/GraficoBarrasSemanais";
+import { GraficoComparacaoPeriodo } from "@/components/charts/GraficoComparacaoPeriodo";
 import { GraficoEvolucao } from "@/components/charts/GraficoEvolucao";
+import { GraficoEvolucaoDesvio } from "@/components/charts/GraficoEvolucaoDesvio";
+import { GraficoMetaDesvio } from "@/components/charts/GraficoMetaDesvio";
 import { IndicadorDesvio } from "@/components/charts/IndicadorDesvio";
 import { FiltroPeriodo } from "@/components/dashboard/FiltroPeriodo";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -11,9 +15,10 @@ import { PageHeader } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePesagens } from "@/hooks/usePesagens";
+import { useMetaDesvio } from "@/hooks/useMetaDesvio";
 import { calcularIndicadores } from "@/utils/calculos";
 import { formatarKg, formatarPercentual } from "@/utils/formato";
-import { periodoDoPreset } from "@/utils/periodo";
+import { intervaloAnterior, periodoDoPreset } from "@/utils/periodo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,13 +40,23 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
+  const { meta: metaDesvio } = useMetaDesvio();
   const [periodo, setPeriodo] = useState(() => periodoDoPreset("ultimos30"));
   const { data: pesagens, isLoading } = usePesagens({
     inicio: periodo.inicio,
     fim: periodo.fim,
   });
+  const anterior = useMemo(
+    () => intervaloAnterior(periodo.inicio, periodo.fim),
+    [periodo.inicio, periodo.fim],
+  );
+  const { data: pesagensAnteriores } = usePesagens(anterior);
 
   const indicadores = useMemo(() => calcularIndicadores(pesagens ?? []), [pesagens]);
+  const indicadoresAnteriores = useMemo(
+    () => (anterior ? calcularIndicadores(pesagensAnteriores ?? []) : undefined),
+    [anterior, pesagensAnteriores],
+  );
 
   return (
     <>
@@ -136,6 +151,40 @@ function Dashboard() {
             Proporção entre recicláveis, orgânicos e rejeitos.
           </p>
           <GraficoComposicao indicadores={indicadores} />
+        </section>
+
+        <section className="surface-card p-6 sm:p-8 lg:col-span-2">
+          <p className="eyebrow mb-2">Volume semanal</p>
+          <h2 className="font-semibold">Resíduos por semana</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Barras empilhadas por categoria, com semanas iniciando na segunda-feira.
+          </p>
+          <GraficoBarrasSemanais pesagens={pesagens ?? []} />
+        </section>
+
+        <section className="surface-card p-6 sm:p-8">
+          <p className="eyebrow mb-2">Objetivo operacional</p>
+          <h2 className="font-semibold">Meta versus realizado</h2>
+          <p className="mb-6 text-sm text-muted-foreground">Meta de desvio do aterro no período.</p>
+          <GraficoMetaDesvio realizado={indicadores.desvio} meta={metaDesvio} />
+        </section>
+
+        <section className="surface-card p-6 sm:p-8 lg:col-span-2">
+          <p className="eyebrow mb-2">Tendência</p>
+          <h2 className="font-semibold">Evolução da taxa de desvio</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Percentual diário recuperado, com referência da meta de {metaDesvio}%.
+          </p>
+          <GraficoEvolucaoDesvio pesagens={pesagens ?? []} meta={metaDesvio} />
+        </section>
+
+        <section className="surface-card p-6 sm:p-8">
+          <p className="eyebrow mb-2">Comparativo</p>
+          <h2 className="font-semibold">Atual versus anterior</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Mesmo número de dias imediatamente anteriores ao período selecionado.
+          </p>
+          <GraficoComparacaoPeriodo atual={indicadores} anterior={indicadoresAnteriores} />
         </section>
       </div>
     </>

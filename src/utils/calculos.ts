@@ -60,3 +60,51 @@ export function serieDiaria(pesagens: Pesagem[]) {
 
   return Array.from(mapa.values()).sort((a, b) => a.data.localeCompare(b.data));
 }
+
+function paraDataLocal(iso: string): Date {
+  return new Date(`${iso}T12:00:00`);
+}
+
+function paraISO(d: Date): string {
+  const mes = String(d.getMonth() + 1).padStart(2, "0");
+  const dia = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mes}-${dia}`;
+}
+
+/** Série consolidada por semana, iniciando na segunda-feira. */
+export function serieSemanal(pesagens: Pesagem[]) {
+  const mapa = new Map<
+    string,
+    { inicio: string; reciclaveis: number; organicos: number; rejeitos: number }
+  >();
+
+  for (const p of pesagens) {
+    const data = paraDataLocal(p.data);
+    const deslocamento = (data.getDay() + 6) % 7;
+    data.setDate(data.getDate() - deslocamento);
+    const inicio = paraISO(data);
+    const atual = mapa.get(inicio) ?? {
+      inicio,
+      reciclaveis: 0,
+      organicos: 0,
+      rejeitos: 0,
+    };
+    atual.reciclaveis += Number(p.reciclaveis);
+    atual.organicos += Number(p.organicos);
+    atual.rejeitos += Number(p.rejeitos);
+    mapa.set(inicio, atual);
+  }
+
+  return Array.from(mapa.values()).sort((a, b) => a.inicio.localeCompare(b.inicio));
+}
+
+/** Taxa de desvio consolidada por dia (ponderada pelo peso total). */
+export function serieDesvioDiario(pesagens: Pesagem[]) {
+  return serieDiaria(pesagens).map((item) => {
+    const total = item.reciclaveis + item.organicos + item.rejeitos;
+    return {
+      data: item.data,
+      desvio: taxaDesvio(item.reciclaveis + item.organicos, total),
+    };
+  });
+}

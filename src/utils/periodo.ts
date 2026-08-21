@@ -17,6 +17,20 @@ function addDias(iso: string, dias: number): string {
   return paraISOLocal(d);
 }
 
+/** Intervalo imediatamente anterior, com a mesma quantidade de dias (limites inclusivos). */
+export function intervaloAnterior(inicio: string, fim: string) {
+  if (!inicio || !fim) return undefined;
+  const inicioData = new Date(`${inicio}T12:00:00`);
+  const fimData = new Date(`${fim}T12:00:00`);
+  const duracao = Math.round((fimData.getTime() - inicioData.getTime()) / 86_400_000) + 1;
+  if (duracao <= 0) return undefined;
+
+  return {
+    inicio: addDias(inicio, -duracao),
+    fim: addDias(inicio, -1),
+  };
+}
+
 export function periodoDoPreset(preset: PeriodoPreset, atual?: Periodo): Periodo {
   const fim = hojeISO();
 

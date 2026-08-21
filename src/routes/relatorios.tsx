@@ -4,17 +4,22 @@ import { FileSpreadsheet, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 import { GraficoComposicao } from "@/components/charts/GraficoComposicao";
+import { GraficoBarrasSemanais } from "@/components/charts/GraficoBarrasSemanais";
+import { GraficoComparacaoPeriodo } from "@/components/charts/GraficoComparacaoPeriodo";
 import { GraficoEvolucao } from "@/components/charts/GraficoEvolucao";
+import { GraficoEvolucaoDesvio } from "@/components/charts/GraficoEvolucaoDesvio";
+import { GraficoMetaDesvio } from "@/components/charts/GraficoMetaDesvio";
 import { PageHeader } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { usePesagens } from "@/hooks/usePesagens";
+import { useMetaDesvio } from "@/hooks/useMetaDesvio";
 import { calcularIndicadores } from "@/utils/calculos";
 import { exportarRelatorioExcel, exportarRelatorioPdf } from "@/utils/exportarRelatorio";
 import { formatarData } from "@/utils/formato";
 import { linhasResumoPeriodo } from "@/utils/relatorio";
-import { hojeISO } from "@/utils/periodo";
+import { hojeISO, intervaloAnterior } from "@/utils/periodo";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({
@@ -40,6 +45,7 @@ function primeiroDiaDoMes() {
 }
 
 function Relatorios() {
+  const { meta: metaDesvio } = useMetaDesvio();
   const [inicio, setInicio] = useState(primeiroDiaDoMes);
   const [fim, setFim] = useState(hojeISO);
   const [exportando, setExportando] = useState<"pdf" | "excel" | null>(null);
@@ -50,7 +56,16 @@ function Relatorios() {
     [inicio, fim],
   );
   const { data } = usePesagens(intervalo);
+  const anterior = useMemo(
+    () => intervaloAnterior(intervalo.inicio, intervalo.fim),
+    [intervalo.inicio, intervalo.fim],
+  );
+  const { data: dadosAnteriores } = usePesagens(anterior);
   const indicadores = useMemo(() => calcularIndicadores(data ?? []), [data]);
+  const indicadoresAnteriores = useMemo(
+    () => (anterior ? calcularIndicadores(dadosAnteriores ?? []) : undefined),
+    [anterior, dadosAnteriores],
+  );
 
   const linhas = linhasResumoPeriodo(indicadores);
   const dadosRelatorio = {
@@ -154,6 +169,40 @@ function Relatorios() {
         <section className="surface-card p-6">
           <h2 className="mb-4 text-base font-semibold">Composição no período</h2>
           <GraficoComposicao indicadores={indicadores} />
+        </section>
+      </div>
+
+      <div className="stagger mt-6 grid gap-6 lg:grid-cols-2">
+        <section className="surface-card p-6">
+          <h2 className="text-base font-semibold">Resíduos por semana</h2>
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">
+            Volume semanal empilhado por categoria.
+          </p>
+          <GraficoBarrasSemanais pesagens={data ?? []} />
+        </section>
+
+        <section className="surface-card p-6">
+          <h2 className="text-base font-semibold">Atual versus anterior</h2>
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">
+            Comparação com o intervalo imediatamente anterior de mesma duração.
+          </p>
+          <GraficoComparacaoPeriodo atual={indicadores} anterior={indicadoresAnteriores} />
+        </section>
+
+        <section className="surface-card p-6">
+          <h2 className="text-base font-semibold">Evolução da taxa de desvio</h2>
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">
+            Resultado diário e linha da meta definida em {metaDesvio}%.
+          </p>
+          <GraficoEvolucaoDesvio pesagens={data ?? []} meta={metaDesvio} />
+        </section>
+
+        <section className="surface-card p-6">
+          <h2 className="text-base font-semibold">Meta versus realizado</h2>
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">
+            Acompanhamento da meta de desvio do aterro.
+          </p>
+          <GraficoMetaDesvio realizado={indicadores.desvio} meta={metaDesvio} />
         </section>
       </div>
     </>

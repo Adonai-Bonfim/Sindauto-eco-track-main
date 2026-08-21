@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MetasRouteImport } from './routes/metas'
+import { Route as MtrRouteImport } from './routes/mtr'
 import { Route as RegistrarRouteImport } from './routes/registrar'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 
@@ -36,6 +38,16 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MetasRoute = MetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtrRoute = MtrRouteImport.update({
+  id: '/mtr',
+  path: '/mtr',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegistrarRoute = RegistrarRouteImport.update({
   id: '/registrar',
   path: '/registrar',
@@ -52,6 +64,8 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
   '/login': typeof LoginRoute
+  '/metas': typeof MetasRoute
+  '/mtr': typeof MtrRoute
   '/registrar': typeof RegistrarRoute
   '/relatorios': typeof RelatoriosRoute
 }
@@ -60,6 +74,8 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
   '/login': typeof LoginRoute
+  '/metas': typeof MetasRoute
+  '/mtr': typeof MtrRoute
   '/registrar': typeof RegistrarRoute
   '/relatorios': typeof RelatoriosRoute
 }
@@ -69,6 +85,8 @@ export interface FileRoutesById {
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
   '/login': typeof LoginRoute
+  '/metas': typeof MetasRoute
+  '/mtr': typeof MtrRoute
   '/registrar': typeof RegistrarRoute
   '/relatorios': typeof RelatoriosRoute
 }
@@ -79,6 +97,8 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/historico'
     | '/login'
+    | '/metas'
+    | '/mtr'
     | '/registrar'
     | '/relatorios'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +107,8 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/historico'
     | '/login'
+    | '/metas'
+    | '/mtr'
     | '/registrar'
     | '/relatorios'
   id:
@@ -95,6 +117,8 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/historico'
     | '/login'
+    | '/metas'
+    | '/mtr'
     | '/registrar'
     | '/relatorios'
   fileRoutesById: FileRoutesById
@@ -104,6 +128,8 @@ export interface RootRouteChildren {
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   HistoricoRoute: typeof HistoricoRoute
   LoginRoute: typeof LoginRoute
+  MetasRoute: typeof MetasRoute
+  MtrRoute: typeof MtrRoute
   RegistrarRoute: typeof RegistrarRoute
   RelatoriosRoute: typeof RelatoriosRoute
 }
@@ -138,6 +164,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/metas': {
+      id: '/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof MetasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mtr': {
+      id: '/mtr'
+      path: '/mtr'
+      fullPath: '/mtr'
+      preLoaderRoute: typeof MtrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/registrar': {
       id: '/registrar'
       path: '/registrar'
@@ -160,6 +200,8 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracoesRoute: ConfiguracoesRoute,
   HistoricoRoute: HistoricoRoute,
   LoginRoute: LoginRoute,
+  MetasRoute: MetasRoute,
+  MtrRoute: MtrRoute,
   RegistrarRoute: RegistrarRoute,
   RelatoriosRoute: RelatoriosRoute,
 }
