@@ -41,7 +41,7 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const { meta: metaDesvio } = useMetaDesvio();
-  const [periodo, setPeriodo] = useState(() => periodoDoPreset("ultimos30"));
+  const [periodo, setPeriodo] = useState(() => periodoDoPreset("mes"));
   const { data: pesagens, isLoading } = usePesagens({
     inicio: periodo.inicio,
     fim: periodo.fim,

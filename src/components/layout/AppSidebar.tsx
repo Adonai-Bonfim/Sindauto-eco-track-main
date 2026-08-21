@@ -5,6 +5,7 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  BellRing,
   ScrollText,
   Settings,
   Target,
@@ -31,15 +32,21 @@ const itens = [
   { titulo: "Histórico", url: "/historico", icone: BarChart3 },
   { titulo: "Relatórios", url: "/relatorios", icone: FileText },
   { titulo: "Metas", url: "/metas", icone: Target },
+  { titulo: "Alertas", url: "/alertas", icone: BellRing },
   { titulo: "Controle de MTR", url: "/mtr", icone: ScrollText },
   { titulo: "Configurações", url: "/configuracoes", icone: Settings },
 ] as const;
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpen, setOpenMobile } = useSidebar();
   const recolhida = state === "collapsed";
   const caminho = useRouterState({ select: (r) => r.location.pathname });
   const { sair } = useAuth();
+
+  function recolherMenu() {
+    setOpen(false);
+    setOpenMobile(false);
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -71,7 +78,7 @@ export function AppSidebar() {
               {itens.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={caminho === item.url} tooltip={item.titulo}>
-                    <Link to={item.url} className="flex items-center gap-3">
+                    <Link to={item.url} className="flex items-center gap-3" onClick={recolherMenu}>
                       <item.icone className="h-4 w-4 shrink-0" />
                       <span className="truncate">{item.titulo}</span>
                     </Link>
@@ -85,7 +92,13 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border p-3">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Sair" onClick={() => void sair()}>
+            <SidebarMenuButton
+              tooltip="Sair"
+              onClick={() => {
+                recolherMenu();
+                void sair();
+              }}
+            >
               <LogOut className="h-4 w-4 shrink-0" />
               <span>Sair</span>
             </SidebarMenuButton>
