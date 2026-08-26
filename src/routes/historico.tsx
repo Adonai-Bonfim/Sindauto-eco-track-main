@@ -108,10 +108,12 @@ function Historico() {
           <TabelaPesagens
             pesagens={historico.visiveis}
             agora={agora}
+            podeEditarTudo={admin}
             onVisualizar={setVisualizando}
             onEditar={(pesagem) => {
-              if (!pesagem.podeEditar) return;
-              if (pesagem.editavelAte && Date.now() >= Date.parse(pesagem.editavelAte)) return;
+              if (!admin && !pesagem.podeEditar) return;
+              if (!admin && pesagem.editavelAte && Date.now() >= Date.parse(pesagem.editavelAte))
+                return;
               setEditando(pesagem);
             }}
             onExcluir={admin ? setExcluindo : undefined}

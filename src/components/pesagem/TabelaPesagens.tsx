@@ -19,6 +19,7 @@ interface Props {
   onEditar?: (pesagem: Pesagem) => void;
   onExcluir?: (pesagem: Pesagem) => void;
   agora?: number;
+  podeEditarTudo?: boolean;
 }
 
 function podeEditarAgora(pesagem: Pesagem, agora: number): boolean {
@@ -34,6 +35,7 @@ export function TabelaPesagens({
   onEditar,
   onExcluir,
   agora = Date.now(),
+  podeEditarTudo = false,
 }: Props) {
   return (
     <div>
@@ -89,7 +91,7 @@ export function TabelaPesagens({
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    {onEditar && podeEditarAgora(p, agora) && (
+                    {onEditar && (podeEditarTudo || podeEditarAgora(p, agora)) && (
                       <Button
                         variant="ghost"
                         size="icon"
