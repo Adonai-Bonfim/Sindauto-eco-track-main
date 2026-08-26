@@ -5,6 +5,7 @@ import { PesagemForm } from "@/components/pesagem/PesagemForm";
 import { paraValores, type ValoresFormulario } from "@/components/pesagem/valoresFormulario";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAtualizarPesagem } from "@/hooks/usePesagens";
+import { ErroApi } from "@/services/api";
 import type { Pesagem } from "@/types/pesagem";
 
 interface Props {
@@ -44,7 +45,12 @@ function FormularioEdicao({ pesagem, onConcluir }: { pesagem: Pesagem; onConclui
               toast.success("Pesagem atualizada com sucesso.");
               onConcluir();
             },
-            onError: () => toast.error("Não foi possível atualizar a pesagem."),
+            onError: (error) => {
+              toast.error(
+                error instanceof Error ? error.message : "Não foi possível atualizar a pesagem.",
+              );
+              if (error instanceof ErroApi && error.status === 403) onConcluir();
+            },
           },
         )
       }

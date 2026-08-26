@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDownUp, Search } from "lucide-react";
 
 import { FiltroPeriodo } from "@/components/dashboard/FiltroPeriodo";
@@ -41,6 +41,29 @@ function Historico() {
   const [visualizando, setVisualizando] = useState<Pesagem | null>(null);
   const [editando, setEditando] = useState<Pesagem | null>(null);
   const [excluindo, setExcluindo] = useState<Pesagem | null>(null);
+  const [agora, setAgora] = useState(() => Date.now());
+
+  const proximoBloqueio = useMemo(
+    () =>
+      historico.visiveis
+        .filter((pesagem) => pesagem.podeEditar && pesagem.editavelAte)
+        .map((pesagem) => Date.parse(pesagem.editavelAte!))
+        .filter((limite) => Number.isFinite(limite) && limite > agora)
+        .sort((a, b) => a - b)[0],
+    [agora, historico.visiveis],
+  );
+
+  useEffect(() => {
+    if (!proximoBloqueio) return;
+    const temporizador = window.setTimeout(
+      () => {
+        setAgora(Date.now());
+        setEditando(null);
+      },
+      Math.max(0, proximoBloqueio - Date.now() + 50),
+    );
+    return () => window.clearTimeout(temporizador);
+  }, [proximoBloqueio]);
 
   return (
     <>
@@ -84,8 +107,13 @@ function Historico() {
         ) : (
           <TabelaPesagens
             pesagens={historico.visiveis}
+            agora={agora}
             onVisualizar={setVisualizando}
-            onEditar={setEditando}
+            onEditar={(pesagem) => {
+              if (!pesagem.podeEditar) return;
+              if (pesagem.editavelAte && Date.now() >= Date.parse(pesagem.editavelAte)) return;
+              setEditando(pesagem);
+            }}
             onExcluir={admin ? setExcluindo : undefined}
           />
         )}

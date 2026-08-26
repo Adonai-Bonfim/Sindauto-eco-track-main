@@ -35,7 +35,7 @@ export function useAtualizarPesagem() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: PesagemInput }) => atualizarPesagem(id, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: CHAVE }),
+    onSettled: () => qc.invalidateQueries({ queryKey: CHAVE }),
   });
 }
 

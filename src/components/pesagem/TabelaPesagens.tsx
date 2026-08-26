@@ -16,11 +16,25 @@ import { formatarData, formatarHorario, formatarKg, formatarPercentual } from "@
 interface Props {
   pesagens: Pesagem[];
   onVisualizar: (pesagem: Pesagem) => void;
-  onEditar: (pesagem: Pesagem) => void;
+  onEditar?: (pesagem: Pesagem) => void;
   onExcluir?: (pesagem: Pesagem) => void;
+  agora?: number;
 }
 
-export function TabelaPesagens({ pesagens, onVisualizar, onEditar, onExcluir }: Props) {
+function podeEditarAgora(pesagem: Pesagem, agora: number): boolean {
+  if (!pesagem.podeEditar) return false;
+  if (!pesagem.editavelAte) return true;
+  const limite = Date.parse(pesagem.editavelAte);
+  return Number.isFinite(limite) && agora < limite;
+}
+
+export function TabelaPesagens({
+  pesagens,
+  onVisualizar,
+  onEditar,
+  onExcluir,
+  agora = Date.now(),
+}: Props) {
   return (
     <div>
       <p className="px-4 pt-3 text-xs text-muted-foreground sm:hidden">
@@ -75,15 +89,17 @@ export function TabelaPesagens({ pesagens, onVisualizar, onEditar, onExcluir }: 
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-11 w-11 sm:h-9 sm:w-9"
-                      aria-label="Editar"
-                      onClick={() => onEditar(p)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                    {onEditar && podeEditarAgora(p, agora) && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 sm:h-9 sm:w-9"
+                        aria-label="Editar"
+                        onClick={() => onEditar(p)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
                     {onExcluir && (
                       <Button
                         variant="ghost"

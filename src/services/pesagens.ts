@@ -16,6 +16,8 @@ function normalizar(row: Record<string, unknown>): Pesagem {
     observacoes: (row["observacoes"] as string | null) ?? null,
     created_at: String(row["created_at"]),
     updated_at: String(row["updated_at"]),
+    podeEditar: row["podeEditar"] === true,
+    editavelAte: typeof row["editavelAte"] === "string" ? row["editavelAte"] : null,
   };
 }
 
@@ -54,7 +56,8 @@ export async function listarPesagens(params?: IntervaloDatas): Promise<Pesagem[]
     const query = new URLSearchParams();
     if (params?.inicio) query.set("inicio", params.inicio);
     if (params?.fim) query.set("fim", params.fim);
-    return requisicaoApi<Pesagem[]>(`/pesagens?${query}`);
+    const resposta = await requisicaoApi<Record<string, unknown>[]>(`/pesagens?${query}`);
+    return resposta.map(normalizar);
   }
 
   if (!USA_API) {
@@ -72,10 +75,11 @@ export async function listarPesagens(params?: IntervaloDatas): Promise<Pesagem[]
 export async function criarPesagem(input: PesagemInput): Promise<Pesagem> {
   const validada = validarOuFalhar(input);
   if (USA_API) {
-    return requisicaoApi<Pesagem>("/pesagens", {
+    const resposta = await requisicaoApi<Record<string, unknown>>("/pesagens", {
       method: "POST",
       body: JSON.stringify(validada),
     });
+    return normalizar(resposta);
   }
 
   if (!USA_API) {
@@ -86,6 +90,8 @@ export async function criarPesagem(input: PesagemInput): Promise<Pesagem> {
       observacoes: validada.observacoes ?? null,
       created_at: agora,
       updated_at: agora,
+      podeEditar: true,
+      editavelAte: null,
     };
     salvarPesagensLocais([nova, ...lerPesagensLocais()]);
     return nova;
@@ -97,10 +103,14 @@ export async function criarPesagem(input: PesagemInput): Promise<Pesagem> {
 export async function atualizarPesagem(id: string, input: PesagemInput): Promise<Pesagem> {
   const validada = validarOuFalhar(input);
   if (USA_API) {
-    return requisicaoApi<Pesagem>(`/pesagens/${encodeURIComponent(id)}`, {
-      method: "PUT",
-      body: JSON.stringify(validada),
-    });
+    const resposta = await requisicaoApi<Record<string, unknown>>(
+      `/pesagens/${encodeURIComponent(id)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(validada),
+      },
+    );
+    return normalizar(resposta);
   }
 
   if (!USA_API) {

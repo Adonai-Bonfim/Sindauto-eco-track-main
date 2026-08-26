@@ -8,6 +8,8 @@ export interface Pesagem {
   observacoes: string | null;
   created_at: string;
   updated_at: string;
+  podeEditar: boolean;
+  editavelAte: string | null;
 }
 
 export interface PesagemInput {
@@ -30,13 +32,7 @@ export interface Indicadores {
   mediaDiaria: number;
 }
 
-export type PeriodoPreset =
-  | "todo"
-  | "hoje"
-  | "semana"
-  | "mes"
-  | "ultimos30"
-  | "personalizado";
+export type PeriodoPreset = "todo" | "hoje" | "semana" | "mes" | "ultimos30" | "personalizado";
 
 /** Intervalo de consulta em datas ISO "YYYY-MM-DD". */
 export interface IntervaloDatas {
