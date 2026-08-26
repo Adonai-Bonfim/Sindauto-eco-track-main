@@ -5,7 +5,14 @@ import { validarPesagem } from "@/validators/pesagem";
 const CHAVE_LOCAL = "sindauto-pesagens";
 const USA_API = import.meta.env["VITE_DATA_SOURCE"] !== "local";
 
+function lerBooleano(valor: unknown): boolean {
+  return valor === true || valor === 1 || valor === "1" || valor === "true";
+}
+
 function normalizar(row: Record<string, unknown>): Pesagem {
+  const podeEditar = row["podeEditar"] ?? row["pode_editar"];
+  const editavelAte = row["editavelAte"] ?? row["editavel_ate"];
+
   return {
     id: String(row["id"]),
     data: String(row["data"]),
@@ -16,8 +23,8 @@ function normalizar(row: Record<string, unknown>): Pesagem {
     observacoes: (row["observacoes"] as string | null) ?? null,
     created_at: String(row["created_at"]),
     updated_at: String(row["updated_at"]),
-    podeEditar: row["podeEditar"] === true,
-    editavelAte: typeof row["editavelAte"] === "string" ? row["editavelAte"] : null,
+    podeEditar: lerBooleano(podeEditar),
+    editavelAte: typeof editavelAte === "string" && editavelAte ? editavelAte : null,
   };
 }
 
