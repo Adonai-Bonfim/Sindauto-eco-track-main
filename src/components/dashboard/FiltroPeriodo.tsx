@@ -12,26 +12,29 @@ interface Props {
 export function FiltroPeriodo({ periodo, onChange }: Props) {
   const selecionarPreset = (preset: PeriodoPreset) => onChange(periodoDoPreset(preset, periodo));
 
+  const botaoPreset = (p: (typeof PRESETS)[number]) => (
+    <button
+      key={p.valor}
+      type="button"
+      onClick={() => selecionarPreset(p.valor)}
+      aria-pressed={periodo.preset === p.valor}
+      className={cn(
+        "min-h-11 rounded-full border px-3 py-2 text-[0.8125rem] font-medium tracking-tight sm:min-h-9 sm:px-4",
+        "transition-all duration-300 ease-[var(--ease-premium)] active:scale-[0.97]",
+        periodo.preset === p.valor
+          ? "border-primary/70 bg-primary text-primary-foreground shadow-[var(--shadow-float)]"
+          : "border-border bg-card/70 text-muted-foreground hover:-translate-y-0.5 hover:border-primary/30 hover:bg-accent hover:text-accent-foreground",
+      )}
+    >
+      {p.rotulo}
+    </button>
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        {PRESETS.map((p) => (
-          <button
-            key={p.valor}
-            type="button"
-            onClick={() => selecionarPreset(p.valor)}
-            aria-pressed={periodo.preset === p.valor}
-            className={cn(
-              "min-h-11 rounded-full border px-4 py-2 text-[0.8125rem] font-medium tracking-tight sm:min-h-9",
-              "transition-all duration-300 ease-[var(--ease-premium)] active:scale-[0.97]",
-              periodo.preset === p.valor
-                ? "border-primary/70 bg-primary text-primary-foreground shadow-[var(--shadow-float)]"
-                : "border-border bg-card/70 text-muted-foreground hover:-translate-y-0.5 hover:border-primary/30 hover:bg-accent hover:text-accent-foreground",
-            )}
-          >
-            {p.rotulo}
-          </button>
-        ))}
+        {PRESETS.slice(0, -2).map(botaoPreset)}
+        <div className="flex shrink-0 gap-2">{PRESETS.slice(-2).map(botaoPreset)}</div>
       </div>
 
       {periodo.preset === "personalizado" && (
