@@ -107,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/logo-sindauto.png", type: "image/png" },
+      { rel: "icon", href: "/logo-syntrack.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/logo-sindauto.png" },
     ],
   }),

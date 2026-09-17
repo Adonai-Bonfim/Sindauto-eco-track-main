@@ -30,7 +30,7 @@ function Configuracoes() {
         <dl className="mt-4 space-y-3 text-sm">
           {[
             ["Nome", "Sindauto Bahia"],
-            ["Sistema", "Sindauto Lixo Zero"],
+            ["Sistema", "SynTrack"],
             ["Subtítulo", "Gestão e Monitoramento de Resíduos"],
             ["Unidade de medida", "Quilogramas (kg)"],
           ].map(([k, v]) => (
