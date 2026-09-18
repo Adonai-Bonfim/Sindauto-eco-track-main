@@ -73,7 +73,7 @@ function Historico() {
   return (
     <div className="history-page">
       <PageHeader
-        titulo={mobile ? "Histórico de Pesagens" : "Histórico"}
+        titulo="Histórico de Pesagens"
         descricao="Todos os registros de pesagem realizados no período."
       />
 
@@ -112,9 +112,9 @@ function Historico() {
         </div>
       </div>
 
-      <div className="mb-4 md:hidden">
+      <div className="history-overview mb-4">
         {historico.isLoading ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="history-stats-loading grid grid-cols-2 gap-3">
             {Array.from({ length: 4 }, (_, i) => (
               <Skeleton key={i} className="h-28 rounded-xl" />
             ))}
@@ -147,12 +147,12 @@ function Historico() {
             </div>
           )
         )}
-        <h2 className="mt-4 font-semibold">
+        <h2 className="mt-4 font-semibold md:hidden">
           Registros {historico.ordemDesc ? "recentes" : "mais antigos"}
         </h2>
       </div>
       <div className="history-results surface-card overflow-hidden">
-        {mobile && historico.isError ? (
+        {historico.isError ? (
           <div role="alert" className="space-y-3 p-4">
             <p className="text-sm">Não foi possível carregar as pesagens.</p>
             <Button variant="outline" onClick={() => void historico.refetch()}>
