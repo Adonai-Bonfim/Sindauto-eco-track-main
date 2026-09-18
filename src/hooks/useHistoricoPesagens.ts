@@ -4,6 +4,7 @@ import { usePesagens } from "@/hooks/usePesagens";
 import type { IntervaloDatas, Pesagem, Periodo } from "@/types/pesagem";
 import { formatarData } from "@/utils/formato";
 import { periodoDoPreset } from "@/utils/periodo";
+import { calcularIndicadores } from "@/utils/calculos";
 
 const POR_PAGINA = 10;
 
@@ -28,7 +29,7 @@ export function useHistoricoPesagens() {
 
   const intervalo: IntervaloDatas | undefined =
     periodo.preset === "todo" ? undefined : { inicio: periodo.inicio, fim: periodo.fim };
-  const { data, isLoading } = usePesagens(intervalo);
+  const { data, isLoading, isError, refetch } = usePesagens(intervalo);
 
   const filtradas = useMemo(() => {
     const termo = busca.trim().toLowerCase();
@@ -39,6 +40,7 @@ export function useHistoricoPesagens() {
   }, [data, busca, ordemDesc]);
 
   const totalPaginas = Math.max(1, Math.ceil(filtradas.length / POR_PAGINA));
+  const indicadores = useMemo(() => calcularIndicadores(filtradas), [filtradas]);
   const paginaAtual = Math.min(pagina, totalPaginas);
   const visiveis = filtradas.slice((paginaAtual - 1) * POR_PAGINA, paginaAtual * POR_PAGINA);
 
@@ -60,6 +62,9 @@ export function useHistoricoPesagens() {
     ordemDesc,
     alternarOrdem: () => setOrdemDesc((v) => !v),
     isLoading,
+    isError,
+    refetch,
+    indicadores,
     visiveis,
     totalFiltradas: filtradas.length,
     paginaAtual,

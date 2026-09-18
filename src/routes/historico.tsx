@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownUp, Search } from "lucide-react";
+import { ArrowDownUp, Search, ClipboardList, Scale, Recycle, Percent } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { StatCard } from "@/components/dashboard/StatCard";
+import { formatarKg, formatarPercentual } from "@/utils/formato";
+import { podeEditarAgora } from "@/utils/permissoesPesagem";
 
 import { FiltroPeriodo } from "@/components/dashboard/FiltroPeriodo";
 import { PageHeader } from "@/components/layout/AppLayout";
@@ -37,6 +41,7 @@ export const Route = createFileRoute("/historico")({
 function Historico() {
   const historico = useHistoricoPesagens();
   const { admin } = useAuth();
+  const mobile = useIsMobile();
 
   const [visualizando, setVisualizando] = useState<Pesagem | null>(null);
   const [editando, setEditando] = useState<Pesagem | null>(null);
@@ -54,7 +59,7 @@ function Historico() {
   );
 
   useEffect(() => {
-    if (!proximoBloqueio) return;
+    if (admin || !proximoBloqueio) return;
     const temporizador = window.setTimeout(
       () => {
         setAgora(Date.now());
@@ -63,28 +68,42 @@ function Historico() {
       Math.max(0, proximoBloqueio - Date.now() + 50),
     );
     return () => window.clearTimeout(temporizador);
-  }, [proximoBloqueio]);
+  }, [admin, proximoBloqueio]);
 
   return (
-    <>
+    <div className="history-page">
       <PageHeader
-        titulo="Histórico"
+        titulo={mobile ? "Histórico de Pesagens" : "Histórico"}
         descricao="Todos os registros de pesagem realizados no período."
       />
 
-      <div className="surface-card mb-6 space-y-5 p-5">
-        <FiltroPeriodo periodo={historico.periodo} onChange={historico.setPeriodo} />
+      <div className="history-filters surface-card mb-6 space-y-5 p-5">
+        <FiltroPeriodo
+          periodo={historico.periodo}
+          onChange={historico.setPeriodo}
+          compacto={mobile}
+        />
         <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
           <div className="relative min-w-0">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
+              aria-label="Pesquisar por data ou observação"
               placeholder="Pesquisar por data ou observação"
               value={historico.busca}
               onChange={(e) => historico.setBusca(e.target.value)}
               className="pl-9"
             />
           </div>
-          <Button variant="outline" onClick={historico.alternarOrdem} className="shrink-0">
+          <Button
+            variant="outline"
+            onClick={historico.alternarOrdem}
+            className="shrink-0"
+            aria-label={
+              historico.ordemDesc
+                ? "Ordenação: mais recentes. Mostrar mais antigas"
+                : "Ordenação: mais antigas. Mostrar mais recentes"
+            }
+          >
             <ArrowDownUp className="h-4 w-4" />
             <span className="hidden sm:inline">
               {historico.ordemDesc ? "Mais recentes" : "Mais antigas"}
@@ -93,8 +112,54 @@ function Historico() {
         </div>
       </div>
 
-      <div className="surface-card overflow-hidden">
+      <div className="mb-4 md:hidden">
         {historico.isLoading ? (
+          <div className="grid grid-cols-2 gap-3">
+            {Array.from({ length: 4 }, (_, i) => (
+              <Skeleton key={i} className="h-28 rounded-xl" />
+            ))}
+          </div>
+        ) : (
+          !historico.isError && (
+            <div className="history-stats dashboard-stats grid grid-cols-2 gap-3">
+              <StatCard
+                titulo="Registros encontrados"
+                valor={String(historico.indicadores.registros)}
+                icone={ClipboardList}
+              />
+              <StatCard
+                titulo="Total registrado"
+                valor={formatarKg(historico.indicadores.total)}
+                icone={Scale}
+              />
+              <StatCard
+                titulo="Recuperados"
+                valor={formatarKg(historico.indicadores.recuperado)}
+                icone={Recycle}
+                tom="reciclavel"
+              />
+              <StatCard
+                titulo="Desvio do aterro"
+                valor={formatarPercentual(historico.indicadores.desvio)}
+                icone={Percent}
+                tom="destaque"
+              />
+            </div>
+          )
+        )}
+        <h2 className="mt-4 font-semibold">
+          Registros {historico.ordemDesc ? "recentes" : "mais antigos"}
+        </h2>
+      </div>
+      <div className="history-results surface-card overflow-hidden">
+        {mobile && historico.isError ? (
+          <div role="alert" className="space-y-3 p-4">
+            <p className="text-sm">Não foi possível carregar as pesagens.</p>
+            <Button variant="outline" onClick={() => void historico.refetch()}>
+              Tentar novamente
+            </Button>
+          </div>
+        ) : historico.isLoading ? (
           <div className="space-y-3 p-5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-10 w-full" />
@@ -106,23 +171,22 @@ function Historico() {
           </p>
         ) : (
           <TabelaPesagens
+            cartoesMobile
             pesagens={historico.visiveis}
             agora={agora}
             podeEditarTudo={admin}
             onVisualizar={setVisualizando}
             onEditar={(pesagem) => {
-              if (!admin && !pesagem.podeEditar) return;
-              if (!admin && pesagem.editavelAte && Date.now() >= Date.parse(pesagem.editavelAte))
-                return;
+              if (!admin && !podeEditarAgora(pesagem, Date.now())) return;
               setEditando(pesagem);
             }}
-            onExcluir={admin ? setExcluindo : undefined}
+            {...(admin ? { onExcluir: setExcluindo } : {})}
           />
         )}
       </div>
 
       {historico.exibePaginacao && (
-        <div className="mt-4 flex items-center justify-between gap-3">
+        <div className="history-pagination mt-4 flex items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">
             Página {historico.paginaAtual} de {historico.totalPaginas} · {historico.totalFiltradas}{" "}
             registros
@@ -151,6 +215,6 @@ function Historico() {
       <DetalhesPesagemDialog pesagem={visualizando} onFechar={() => setVisualizando(null)} />
       <EditarPesagemDialog pesagem={editando} onFechar={() => setEditando(null)} />
       {admin && <ExcluirPesagemDialog pesagem={excluindo} onFechar={() => setExcluindo(null)} />}
-    </>
+    </div>
   );
 }

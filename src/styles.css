@@ -752,3 +752,37 @@
     border-radius: 12px;
   }
 }
+
+@media (max-width: 767px) {
+  .history-page {
+    min-width: 0;
+  }
+  .history-page h1 {
+    font-size: clamp(24px, 6.5vw, 30px);
+  }
+  .history-filters {
+    padding: 14px;
+  }
+  .history-filters input,
+  .history-filters button {
+    min-height: 44px;
+  }
+  .history-filters input {
+    font-size: 16px;
+  }
+  .history-results {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .history-card-categories {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  }
+  .history-pagination {
+    flex-wrap: wrap;
+  }
+  .history-pagination button {
+    min-height: 44px;
+  }
+}
