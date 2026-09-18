@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Leaf, Plus, Recycle, Scale, Trash2, TrendingUp } from "lucide-react";
+import { ArrowRight, Leaf, Plus, Recycle, Scale, Trash2 } from "lucide-react";
 
 import { GraficoComposicao } from "@/components/charts/GraficoComposicao";
 import { GraficoBarrasSemanais } from "@/components/charts/GraficoBarrasSemanais";
@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePesagens } from "@/hooks/usePesagens";
 import { useMetaDesvio } from "@/hooks/useMetaDesvio";
 import { calcularIndicadores } from "@/utils/calculos";
-import { formatarKg, formatarPercentual } from "@/utils/formato";
+import { formatarKg } from "@/utils/formato";
 import { intervaloAnterior, periodoDoPreset } from "@/utils/periodo";
 
 export const Route = createFileRoute("/")({
@@ -61,35 +61,34 @@ function Dashboard() {
   return (
     <>
       <PageHeader
-        eyebrow="Sindauto Lixo Zero"
+        className="dashboard-header"
         titulo="Dashboard"
-        descricao="Visão geral da geração de resíduos no período selecionado."
+        descricao="Visão geral da geração de resíduos"
         acoes={
-          <Button
-            asChild
-            size="lg"
-            className="shadow-[var(--shadow-float)] transition-all duration-300 ease-[var(--ease-premium)] hover:-translate-y-0.5 active:scale-[0.98]"
-          >
-            <Link to="/registrar">
-              <Plus className="h-4 w-4" />
-              Registrar pesagem
-            </Link>
-          </Button>
+          <div className="dashboard-actions flex min-w-0 flex-wrap items-center gap-3">
+            <FiltroPeriodo periodo={periodo} onChange={setPeriodo} compacto />
+            <Button
+              asChild
+              size="lg"
+              className="shadow-[var(--shadow-float)] transition-all duration-300 ease-[var(--ease-premium)] hover:-translate-y-0.5 active:scale-[0.98]"
+            >
+              <Link to="/registrar">
+                <Plus className="h-4 w-4" />
+                Registrar pesagem
+              </Link>
+            </Button>
+          </div>
         }
       />
 
-      <div className="surface-card mb-8 animate-fade p-5">
-        <FiltroPeriodo periodo={periodo} onChange={setPeriodo} />
-      </div>
-
       {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div className="dashboard-stats grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-36 rounded-2xl" />
           ))}
         </div>
       ) : (
-        <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="stagger dashboard-stats grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             titulo="Total de resíduos"
             valor={formatarKg(indicadores.total)}
@@ -115,45 +114,28 @@ function Dashboard() {
             icone={Trash2}
             tom="rejeito"
           />
-          <StatCard
-            titulo="Desvio do aterro"
-            valor={formatarPercentual(indicadores.desvio)}
-            descricao={`${formatarKg(indicadores.recuperado)} recuperados`}
-            icone={TrendingUp}
-            tom="destaque"
-          />
         </div>
       )}
 
-      <div className="stagger mt-8 grid gap-6 lg:grid-cols-3">
-        <section className="surface-card p-6 sm:p-8 lg:col-span-2">
-          <p className="eyebrow mb-2">Série histórica</p>
+      <div className="dashboard-panels mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)]">
+        <section className="surface-card min-w-0 p-5 sm:p-6">
           <h2 className="font-semibold">Evolução da geração de resíduos</h2>
           <p className="mb-6 text-sm text-muted-foreground">Quantidade em kg por dia.</p>
           <GraficoEvolucao pesagens={pesagens ?? []} />
         </section>
 
-        <section className="surface-card p-6 sm:p-8">
-          <p className="eyebrow mb-2">Indicador</p>
+        <section className="surface-card min-w-0 p-5 sm:p-6">
           <h2 className="font-semibold">Desvio do aterro</h2>
           <p className="mb-6 text-sm text-muted-foreground">Resíduos recuperados no período.</p>
           <IndicadorDesvio
             desvio={indicadores.desvio}
             recuperado={indicadores.recuperado}
             total={indicadores.total}
+            meta={metaDesvio}
           />
         </section>
 
-        <section className="surface-card p-6 sm:p-8 lg:col-span-3">
-          <p className="eyebrow mb-2">Composição</p>
-          <h2 className="font-semibold">Composição dos resíduos</h2>
-          <p className="mb-6 text-sm text-muted-foreground">
-            Proporção entre recicláveis, orgânicos e rejeitos.
-          </p>
-          <GraficoComposicao indicadores={indicadores} />
-        </section>
-
-        <section className="surface-card p-6 sm:p-8 lg:col-span-2">
+        <section className="surface-card min-w-0 p-5 sm:p-6">
           <p className="eyebrow mb-2">Volume semanal</p>
           <h2 className="font-semibold">Resíduos por semana</h2>
           <p className="mb-6 text-sm text-muted-foreground">
@@ -162,14 +144,24 @@ function Dashboard() {
           <GraficoBarrasSemanais pesagens={pesagens ?? []} />
         </section>
 
-        <section className="surface-card p-6 sm:p-8">
-          <p className="eyebrow mb-2">Objetivo operacional</p>
-          <h2 className="font-semibold">Meta versus realizado</h2>
-          <p className="mb-6 text-sm text-muted-foreground">Meta de desvio do aterro no período.</p>
-          <GraficoMetaDesvio realizado={indicadores.desvio} meta={metaDesvio} />
+        <section className="surface-card min-w-0 p-5 sm:p-6">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+            <span className="text-sm font-semibold text-primary">Visão geral · Composição</span>
+            <Link
+              to="/relatorios"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+            >
+              Ver relatório completo <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <h2 className="font-semibold">Composição dos resíduos</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Proporção entre recicláveis, orgânicos e rejeitos.
+          </p>
+          <GraficoComposicao indicadores={indicadores} />
         </section>
 
-        <section className="surface-card p-6 sm:p-8 lg:col-span-2">
+        <section className="surface-card min-w-0 p-5 sm:p-6">
           <p className="eyebrow mb-2">Tendência</p>
           <h2 className="font-semibold">Evolução da taxa de desvio</h2>
           <p className="mb-6 text-sm text-muted-foreground">
@@ -178,7 +170,14 @@ function Dashboard() {
           <GraficoEvolucaoDesvio pesagens={pesagens ?? []} meta={metaDesvio} />
         </section>
 
-        <section className="surface-card p-6 sm:p-8">
+        <section className="surface-card min-w-0 p-5 sm:p-6">
+          <p className="eyebrow mb-2">Objetivo operacional</p>
+          <h2 className="font-semibold">Meta versus realizado</h2>
+          <p className="mb-6 text-sm text-muted-foreground">Meta de desvio do aterro no período.</p>
+          <GraficoMetaDesvio realizado={indicadores.desvio} meta={metaDesvio} />
+        </section>
+
+        <section className="surface-card min-w-0 p-5 sm:p-6">
           <p className="eyebrow mb-2">Comparativo</p>
           <h2 className="font-semibold">Atual versus anterior</h2>
           <p className="mb-6 text-sm text-muted-foreground">

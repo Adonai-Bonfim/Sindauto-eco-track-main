@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BarChart3,
+  ChevronsLeft,
+  ChevronsRight,
   ClipboardList,
   FileText,
   LayoutDashboard,
@@ -17,7 +19,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarFooter,
   SidebarMenu,
@@ -43,8 +44,8 @@ const itensAdministrativos = [
 ] as const;
 
 export function AppSidebar() {
-  const { state, setOpen, setOpenMobile } = useSidebar();
-  const recolhida = state === "collapsed";
+  const { state, setOpen, setOpenMobile, toggleSidebar, isMobile } = useSidebar();
+  const recolhida = !isMobile && state === "collapsed";
   const caminho = useRouterState({ select: (r) => r.location.pathname });
   const { sair, usuario, admin } = useAuth();
   const itens = admin ? [...itensGerais, ...itensAdministrativos] : itensGerais;
@@ -77,14 +78,22 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navegação</SidebarGroupLabel>
+        <SidebarGroup className="pt-5">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-2">
               {itens.map((item) => (
                 <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={caminho === item.url} tooltip={item.titulo}>
-                    <Link to={item.url} className="flex items-center gap-3" onClick={recolherMenu}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={caminho === item.url}
+                    tooltip={item.titulo}
+                    className="h-11 rounded-lg px-3 text-sm text-muted-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-primary"
+                  >
+                    <Link
+                      to={item.url}
+                      className="flex items-center gap-3"
+                      onClick={() => setOpenMobile(false)}
+                    >
                       <item.icone className="h-4 w-4 shrink-0" />
                       <span className="truncate">{item.titulo}</span>
                     </Link>
@@ -96,15 +105,24 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border p-3">
+        <SidebarMenuButton
+          className="hidden md:flex"
+          onClick={toggleSidebar}
+          tooltip={recolhida ? "Expandir menu" : "Recolher menu"}
+        >
+          {recolhida ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+          <span>Recolher menu</span>
+        </SidebarMenuButton>
         {!recolhida && usuario && (
           <div className="mb-2 min-w-0 px-2">
             <p className="truncate text-sm font-medium">{usuario.nome}</p>
             <p className="text-xs capitalize text-muted-foreground">{usuario.perfil}</p>
           </div>
         )}
-        <SidebarMenu>
+        <SidebarMenu className="gap-2">
           <SidebarMenuItem>
             <SidebarMenuButton
+              className="max-md:min-h-11"
               tooltip="Sair"
               onClick={() => {
                 recolherMenu();

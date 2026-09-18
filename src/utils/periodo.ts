@@ -49,6 +49,10 @@ export function periodoDoPreset(preset: PeriodoPreset, atual?: Periodo): Periodo
       const inicio = `${fim.slice(0, 7)}-01`;
       return { preset, inicio, fim };
     }
+    case "ultimos7":
+      return { preset, inicio: addDias(fim, -6), fim };
+    case "ultimos60":
+      return { preset, inicio: addDias(fim, -59), fim };
     case "ultimos30":
       return { preset, inicio: addDias(fim, -29), fim };
     case "personalizado":

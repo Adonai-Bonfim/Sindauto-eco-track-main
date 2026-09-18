@@ -349,3 +349,264 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Desktop workspace inspired by the dashboard reference. */
+.app-workspace {
+  --background: oklch(0.982 0.006 250);
+  --foreground: oklch(0.23 0.055 265);
+  --muted-foreground: oklch(0.52 0.035 260);
+  --border: oklch(0.93 0.012 250);
+  --surface-sheen: none;
+  --radius-2xl: 0.875rem;
+  --shadow-card: 0 2px 4px oklch(0.3 0.04 250 / 0.03), 0 5px 16px oklch(0.3 0.04 250 / 0.04);
+  color: var(--foreground);
+}
+.dark .app-workspace {
+  --background: oklch(0.175 0.016 165);
+  --foreground: oklch(0.965 0.006 150);
+  --muted-foreground: oklch(0.715 0.018 158);
+  --border: oklch(1 0 0 / 0.1);
+}
+.app-workspace h1 {
+  font-size: clamp(1.75rem, 2.2vw, 2.125rem);
+}
+.dashboard-panels > section {
+  min-width: 0;
+}
+
+.dashboard-header > :first-child > p {
+  max-width: none;
+  white-space: nowrap;
+  font-size: min(0.9375rem, 3.4vw);
+}
+
+/* Mobile overrides stay below the existing desktop breakpoint. */
+@media (max-width: 767px) {
+  .workspace-header {
+    height: 72px;
+    gap: 8px;
+    padding-inline: 14px;
+    border-bottom: 0;
+  }
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(12px, 3.6vw, 18px);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .workspace-header > :last-child {
+    gap: 4px;
+  }
+  .mobile-alert-link {
+    display: grid;
+    min-width: 44px;
+    min-height: 44px;
+    place-items: center;
+  }
+  .mobile-user {
+    padding-left: 8px;
+  }
+  .mobile-user > div {
+    display: none;
+  }
+  .workspace-main {
+    padding: 12px 14px calc(104px + env(safe-area-inset-bottom, 0px));
+  }
+  .dashboard-header {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    gap: 4px 10px;
+    margin-bottom: 16px;
+  }
+  .dashboard-header > :first-child {
+    display: contents;
+  }
+  .dashboard-header h1 {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: clamp(24px, 6.5vw, 28px);
+  }
+  .dashboard-header > :first-child > p {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 0;
+  }
+  .dashboard-actions {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-end;
+    width: auto;
+  }
+  .dashboard-actions .periodo-compacto {
+    justify-content: flex-end;
+    max-width: 100%;
+  }
+  .dashboard-actions .periodo-compacto > button {
+    max-width: 100%;
+    height: auto;
+    gap: 5px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  .dashboard-actions .periodo-compacto > button > span {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .dashboard-actions > a {
+    display: none;
+  }
+  .periodo-compacto > button {
+    min-height: 44px;
+    border-radius: 10px;
+  }
+  .mobile-period-popover button,
+  .mobile-period-popover input {
+    min-height: 44px;
+  }
+  .dashboard-stats {
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(100%, max(8.5rem, calc((100% - 10px) / 2))), 1fr)
+    );
+    gap: 10px;
+  }
+  .dashboard-stats .stat-card {
+    padding: 14px 12px;
+    border-radius: 14px;
+  }
+  .dashboard-stats .stat-card > div {
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .dashboard-stats .stat-card > div > span {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+  .dashboard-stats .stat-card svg {
+    width: 19px;
+    height: 19px;
+  }
+  .dashboard-stats .stat-card > div > p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .dashboard-stats .stat-card > p:first-of-type {
+    font-size: clamp(1.125rem, 4.8vw, 1.6rem);
+    margin-top: 12px;
+    overflow-wrap: anywhere;
+  }
+  .dashboard-stats .stat-card > p:last-of-type:not(:first-of-type) {
+    font-size: 11px;
+  }
+  .dashboard-panels {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .dashboard-panels > section {
+    padding: 16px 12px;
+    border-radius: 14px;
+  }
+  .dashboard-panels h2 {
+    font-size: 17px;
+  }
+  .dashboard-panels .recharts-legend-wrapper {
+    max-width: 100%;
+  }
+  .dashboard-panels .recharts-default-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 8px;
+  }
+  .mobile-navigation {
+    position: fixed;
+    z-index: 30;
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    border-top: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted-foreground);
+    padding: 8px 6px calc(4px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 20px oklch(0.3 0.04 250 / 0.04);
+  }
+  .mobile-nav-item {
+    display: flex;
+    min-width: 44px;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 11px;
+    border-radius: 10px;
+  }
+  .mobile-nav-create {
+    width: 56px;
+    height: 56px;
+    justify-self: center;
+    margin-top: -18px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 4px 12px color-mix(in oklab, var(--primary) 25%, transparent);
+  }
+  .mobile-nav-create svg {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* Keep dashboard controls beside the title without relying on browser zoom. */
+@media (min-width: 1024px) {
+  .dashboard-header {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .dashboard-actions {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+
+  .dashboard-actions > :first-child {
+    min-width: 0;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .dashboard-actions > :last-child {
+    flex-shrink: 0;
+    height: 40px;
+    padding-inline: 16px;
+  }
+
+  .dashboard-actions .periodo-presets {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    padding-block: 2px;
+    margin-block: -2px;
+  }
+
+  .dashboard-actions .periodo-presets > div {
+    gap: 6px;
+  }
+
+  .dashboard-actions .periodo-presets button {
+    height: 40px;
+    min-height: 40px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding-inline: 10px;
+  }
+}
