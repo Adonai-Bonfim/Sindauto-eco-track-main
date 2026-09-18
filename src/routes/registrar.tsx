@@ -7,6 +7,7 @@ import { PesagemForm } from "@/components/pesagem/PesagemForm";
 import { valoresIniciais } from "@/components/pesagem/valoresFormulario";
 import { useCriarPesagem } from "@/hooks/usePesagens";
 import { useAuth } from "@/hooks/useAuth";
+import { MODO_REGISTRO } from "@/constants/registro";
 
 export const Route = createFileRoute("/registrar")({
   head: () => ({
@@ -29,19 +30,27 @@ export const Route = createFileRoute("/registrar")({
 
 function RegistrarPesagem() {
   const { usuario } = useAuth();
-  const [valores, setValores] = useState(() => valoresIniciais(usuario?.nome));
+  const [valores, setValores] = useState(() => valoresIniciais(usuario?.nome ?? ""));
   const criar = useCriarPesagem();
   const navigate = useNavigate();
 
   return (
     <>
       <PageHeader
+        className="registration-header"
         titulo="Registrar Pesagem"
+        acoes={
+          <span className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-primary">
+            <span className="hidden md:inline">Modo de registro: </span>
+            {MODO_REGISTRO.rotulo}
+          </span>
+        }
         descricao="Digite apenas números; os valores serão exibidos com três casas decimais (ex.: 2,855 kg)."
       />
 
-      <div className="surface-card mx-auto max-w-2xl p-6 sm:p-8">
+      <div className="w-full min-w-0">
         <PesagemForm
+          registro
           valores={valores}
           onChange={setValores}
           enviando={criar.isPending}
@@ -49,7 +58,7 @@ function RegistrarPesagem() {
             criar.mutate(input, {
               onSuccess: () => {
                 toast.success("Pesagem registrada com sucesso.");
-                setValores(valoresIniciais(usuario?.nome));
+                setValores(valoresIniciais(usuario?.nome ?? ""));
                 navigate({ to: "/historico" });
               },
               onError: (error) => {

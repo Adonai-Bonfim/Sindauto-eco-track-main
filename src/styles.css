@@ -383,7 +383,8 @@
 /* Mobile overrides stay below the existing desktop breakpoint. */
 @media (max-width: 767px) {
   .workspace-header {
-    height: 72px;
+    height: 56px;
+    background-color: color-mix(in oklab, var(--card) 75%, transparent);
     gap: 8px;
     padding-inline: 14px;
     border-bottom: 0;
@@ -608,5 +609,146 @@
     flex-shrink: 0;
     white-space: nowrap;
     padding-inline: 10px;
+  }
+}
+
+/* Registration-only mobile layout; desktop and edit dialogs keep their styles. */
+@media (max-width: 767px) {
+  .registration-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .registration-header > div {
+    display: contents;
+  }
+  .registration-header h1 {
+    grid-row: 1;
+    font-size: clamp(25px, 7vw, 32px);
+  }
+  .registration-header > span {
+    display: none;
+  }
+  .registration-header > div > p {
+    grid-row: 2;
+    margin: 0;
+    font-size: 13px;
+  }
+  .registration-form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .registration-form .registration-fields,
+  .registration-form .registration-summary {
+    display: contents;
+  }
+  .registration-fields > *,
+  .registration-summary > * {
+    margin-block: 0;
+  }
+  .registration-fields > .space-y-2,
+  .registration-summary-content {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card);
+    box-shadow: var(--shadow-card);
+  }
+  .registration-form input,
+  .registration-form textarea {
+    min-width: 0;
+    max-width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+  }
+  .registration-form input[type="date"] {
+    display: block;
+    width: 100%;
+    height: 48px;
+    padding-block: 0;
+    line-height: 46px;
+  }
+  .registration-fields > :first-child {
+    display: grid;
+    gap: 6px;
+    padding-block: 12px;
+    align-content: start;
+  }
+  .registration-fields > :first-child > * {
+    margin-block: 0;
+  }
+  .registration-form input[type="date"]::-webkit-date-and-time-value {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+  }
+  .registration-form input[type="date"]::-webkit-datetime-edit {
+    padding: 0;
+  }
+  .registration-categories-heading {
+    border: 0;
+    padding-top: 8px;
+  }
+  .registration-categories-heading h2 {
+    font-size: 19px;
+  }
+  .registration-form .registration-categories {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 0;
+  }
+  .registration-categories > div {
+    padding: 14px;
+  }
+  .registration-categories label {
+    font-size: 16px;
+  }
+  .registration-summary-content > h2 {
+    font-size: 19px;
+  }
+  .registration-summary-content > dl {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin-top: 16px;
+  }
+  .registration-summary-content > dl > div {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .registration-summary-content > dl > div > div {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+  .registration-summary-content dt {
+    font-size: 14px;
+  }
+  .registration-summary-content dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .registration-summary-content > div {
+    margin-top: 12px;
+    border: 0;
+    padding: 0;
+  }
+  .registration-summary-content > div > div + div {
+    margin-top: 12px;
+    padding-top: 0;
+    border: 0;
+  }
+  .registration-summary > button {
+    min-height: 52px;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 12px;
   }
 }
